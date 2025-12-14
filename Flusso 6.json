@@ -1,0 +1,536 @@
+{
+  "name": "Flusso 6",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "getOutput",
+        "agentId": "5523931660338879",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.phantombuster",
+      "typeVersion": 1,
+      "position": [
+        -432,
+        224
+      ],
+      "id": "c2ffb0f5-b291-4896-bba3-f22c3bea83b1",
+      "name": "Get the output of an agent",
+      "credentials": {
+        "phantombusterApi": {
+          "id": "BpbESQsVAUYppMAl",
+          "name": "Phantombuster account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "maxItems": 10
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        64,
+        224
+      ],
+      "id": "a2175971-63ae-4c23-99d1-d376e9740739",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "jsCode": "// items è l'array che ricevi, i dati sono già \"raw\" in items[i].json?\n// controlla: se il tuo input è quello che hai postato, allora items[i] contiene direttamente i dati\n\nreturn items.map(item => {\n  // Se il nodo Code riceve items come array \"raw\" (non dentro .json), usa direttamente item\n  const data = item.json ? item.json : item; // fallback in caso i dati siano in .json\n  return {\n    json: {\n      Nome: data.fullName || \"\",\n      Posizione: data.headline || \"\",\n      Azienda: data.company || \"\",\n      Azienda2: data.company2 || \"\",\n      Città: data.location || \"\",\n      URL: data.profileUrl || \"\"\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        304,
+        224
+      ],
+      "id": "ed48ca3e-8620-49ef-a878-5941577e0d8f",
+      "name": "Campi essenziali"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  // Rimuove i ```json e ``` finali\n  let text = item.json.output;\n  text = text.replace(/```json/g, '').replace(/```/g, '').trim();\n\n  // Converte in JSON reale\n  let data = [];\n  try {\n    data = JSON.parse(text);\n  } catch(e) {\n    console.error(\"Errore parsing JSON:\", e);\n  }\n\n  return data.map(entry => ({ json: entry }));\n}).flat();\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        864,
+        224
+      ],
+      "id": "e17286e3-402d-4844-bb36-f5dc24914d44",
+      "name": "Pulire l’output"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 17
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -912,
+        224
+      ],
+      "id": "4001cf97-1686-4fad-94ef-041935e508b7",
+      "name": "Schedule Trigger2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a98e01b5-d715-4c0e-9c4a-947f6461e70a",
+              "name": "keyword",
+              "value": "SEO Specialist",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -672,
+        224
+      ],
+      "id": "92588e8b-d728-4878-9340-934dfba37cdb",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Restituisci **solo** un array JSON, con ogni oggetto così:\n{\n  \"Nome\": \"...\",\n  \"Posizione\": \"...\",\n  \"Azienda\": \"...\",\n  \"Azienda2\": \"...\",\n  \"Città\": \"...\",\n  \"URL\": \"...\"\n}\nNiente testo extra, niente spiegazioni. “Rispondi solo con JSON valido, senza blocchi di codice, senza testo extra.”\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        512,
+        224
+      ],
+      "id": "69eccdf1-22e8-4788-95e5-1639e6ececf7",
+      "name": "AI Agent3"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        512,
+        416
+      ],
+      "id": "ef1d372d-78d9-4a99-bfb5-add4ee68e807",
+      "name": "Google Gemini Chat Model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "6xAGhA9zHQNia7ZG",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appH64H1nEAIsJwL3",
+          "mode": "list",
+          "cachedResultName": "Pha",
+          "cachedResultUrl": "https://airtable.com/appH64H1nEAIsJwL3"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblaKCkuIxulioz3x",
+          "mode": "list",
+          "cachedResultName": "Table 1 Pha",
+          "cachedResultUrl": "https://airtable.com/appH64H1nEAIsJwL3/tblaKCkuIxulioz3x"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Nome": "={{$json[\"Nome\"]}}",
+            "Posizione": "={{$json[\"Posizione\"]}}",
+            "Azienda": "={{$json[\"Azienda\"]}}",
+            "Città": "={{$json[\"Città\"]}}",
+            "Url": "={{$json[\"URL\"]}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Nome",
+              "displayName": "Nome",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Posizione",
+              "displayName": "Posizione",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Azienda",
+              "displayName": "Azienda",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Città",
+              "displayName": "Città",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Url",
+              "displayName": "Url",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1120,
+        224
+      ],
+      "id": "ba11189e-7264-4bcf-b98c-8ed06f8e6d2d",
+      "name": "Create a record2",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "2QKNouJknktmrI6L",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "⏰ Schedule Trigger\n⏰ Avvia ogni giorno alle 17:00\nTrigger programmato che lancia il workflow.\n",
+        "height": 112,
+        "width": 176
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -944,
+        32
+      ],
+      "typeVersion": 1,
+      "id": "06e6bfcf-a3e3-44f3-a8c1-70cf920caa17",
+      "name": "Sticky Note29"
+    },
+    {
+      "parameters": {
+        "content": "✏️ Edit Fields\n✏️ Imposta keyword: SEO Specialist\nSetta variabili/parametri (es. keyword) per il flusso.\n\n",
+        "height": 128,
+        "width": 192
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -720,
+        32
+      ],
+      "typeVersion": 1,
+      "id": "dd5b76cf-76ca-49aa-94fa-589581192f1c",
+      "name": "Sticky Note30"
+    },
+    {
+      "parameters": {
+        "content": "🧠 7. AI Agent\n🤖✨ Pulisce/standardizza output secondo prompt (solo JSON)\nTrasforma/arricchisce i dati seguendo il prompt (chiedi solo array JSON).\n\n",
+        "height": 144
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        512,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "f27b9d09-07e8-495e-b929-c6dab602846b",
+      "name": "Sticky Note31"
+    },
+    {
+      "parameters": {
+        "content": "🤖 8. Google Gemini Chat Model\n\n🔹 Modello AI collegato all’agent → elabora il testo e genera la risposta strutturata.",
+        "height": 128,
+        "width": 224
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        464,
+        576
+      ],
+      "typeVersion": 1,
+      "id": "bb90a9dc-f208-4a7c-b1eb-914eec227512",
+      "name": "Sticky Note32"
+    },
+    {
+      "parameters": {
+        "content": "🗂️ Create a record (Airtable)\nScrive: Nome, Posizione, Azienda, Città, URL\nInserisce i record in Airtable .",
+        "height": 128,
+        "width": 208
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1040,
+        16
+      ],
+      "typeVersion": 1,
+      "id": "abbd41ce-2f14-419c-b3cc-569418821c9d",
+      "name": "Sticky Note33"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json[\"jsonUrl\"] }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -192,
+        224
+      ],
+      "id": "62943951-f813-41bd-bed2-3294471b020c",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "content": "🧹 Pulire l’output (Code)\n🧹 Rimuove ```json / backticks + JSON.parse\nSe l'AI ritorna markdown, lo converte in array JSON vero.",
+        "height": 128,
+        "width": 224
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        784,
+        16
+      ],
+      "typeVersion": 1,
+      "id": "a12d1a85-5d68-4b8b-a23c-9fd4888caa63",
+      "name": "Sticky Note34"
+    },
+    {
+      "parameters": {
+        "content": "🧩 Campi essenziali (Code)\n🧩 Mappa → Nome, Posizione, Azienda, Città, URL\nNormalizza i profili: estrae solo i campi che servono (fallback = \"\").\n\n\n",
+        "height": 144,
+        "width": 224
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "0b76b4e3-af27-40e2-a73b-3bd6f3153efc",
+      "name": "Sticky Note35"
+    },
+    {
+      "parameters": {
+        "content": "🔢 Limit\n🔢 Limita a max 10 risultati\nTaglia l'array ai primi N elementi per batch-control.\n\n",
+        "height": 128,
+        "width": 192
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "cbb0856a-fc1c-4ae3-9b2c-d717bf2b6236",
+      "name": "Sticky Note36"
+    },
+    {
+      "parameters": {
+        "content": "🌐 HTTP Request1\n🌐 Scarica jsonUrl → ResponseFormat: JSON\nScarica il JSON reale dai link S3 (trasforma link → dati).\n\n",
+        "height": 112,
+        "width": 224
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -256,
+        16
+      ],
+      "typeVersion": 1,
+      "id": "fa9535f6-309b-49a2-9220-aefef6864027",
+      "name": "Sticky Note37"
+    },
+    {
+      "parameters": {
+        "content": "🤖 Get the output of an agent (PhantomBuster)\n🤖 Prendi i link output (csvUrl / jsonUrl) dall'agent\nRecupera i riferimenti ai risultati generati da PhantomBuster.\n\n",
+        "height": 144,
+        "width": 192
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -480,
+        16
+      ],
+      "typeVersion": 1,
+      "id": "73988f65-6e9a-445a-9b7f-0ac7bb571b56",
+      "name": "Sticky Note38"
+    }
+  ],
+  "pinData": {
+    "Edit Fields1": [
+      {
+        "json": {
+          "keyword": "SEO Specialist"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Get the output of an agent": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Campi essenziali",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Campi essenziali": {
+      "main": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pulire l’output": {
+      "main": [
+        [
+          {
+            "node": "Create a record2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Get the output of an agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent3": {
+      "main": [
+        [
+          {
+            "node": "Pulire l’output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "37fd6dbf-dbee-4042-a7f9-0773b06fc686",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3eade08974c65ea0e714de990b1c4d4deb3f525e0d19f574aa90538cacfd42e4"
+  },
+  "id": "Tm96XJBEUB13Rftp",
+  "tags": []
+}
